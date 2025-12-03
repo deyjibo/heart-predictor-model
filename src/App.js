@@ -6,6 +6,7 @@ import Contact from "./components/Contact";
 import Testing from "./components/Testing";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import HeartPredictor from "./components/HeartPredictor";   // ✅ NEW IMPORT
 import './index.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/collaborators" element={<Collaborators />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/testing" element={<Testing />} />
+            <Route path="/heart-disease" element={<HeartPredictor />} />  {/* ✅ NEW ROUTE */}
           </Routes>
         </div>
         <Footer />
