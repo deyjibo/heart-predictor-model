@@ -58,7 +58,7 @@ const Navbar = () => {
         {/* Links */}
         <div style={{ display: "flex", gap: "30px", fontSize: "18px", fontWeight: "500" }}>
           <NavLink to="/">Home</NavLink>
-          <NavLink to="/collaborators">Collaborators</NavLink>
+          <NavLink to="/collaborators">Our Team</NavLink>
           <NavLink to="/contact">Contact</NavLink>
 
           {/* Predict Link opens modal */}
