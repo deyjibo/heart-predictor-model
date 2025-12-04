@@ -7,9 +7,10 @@ const Contact = () => {
       style={{
         minHeight: "80vh",
         padding: "50px 20px",
-        background: "#fde0e0",
+        background: "linear-gradient(to bottom, #ffffff, #fde0e0)",
         display: "flex",
         justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <div
@@ -83,23 +84,18 @@ const Contact = () => {
               display: "flex",
               flexDirection: "column",
               gap: "15px",
-              width: "100%",               // ensures alignment
+              width: "100%",
             }}
           >
             <input type="text" placeholder="Your Name" style={inputStyle} />
             <input type="email" placeholder="Your Email" style={inputStyle} />
-            <textarea
-              placeholder="Your Message"
-              rows="5"
-              style={inputStyle}
-            />
+            <textarea placeholder="Your Message" rows="5" style={inputStyle} />
 
-            {/* Submit button same width as all inputs */}
             <button
               type="submit"
               style={{
                 ...btnStyle,
-                width: "100%",              // makes it align with inputs
+                width: "100%",
                 display: "block",
               }}
             >
@@ -117,7 +113,7 @@ const inputStyle = {
   borderRadius: "8px",
   border: "1px solid #e2bcbc",
   fontSize: "16px",
-  width: "100%",     // all fields same width
+  width: "100%",
   outline: "none",
   boxSizing: "border-box",
 };

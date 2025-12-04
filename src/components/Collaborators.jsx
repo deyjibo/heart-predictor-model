@@ -21,7 +21,13 @@ const Collaborators = () => {
   ];
 
   return (
-    <div style={{ background: "#fde0e0", minHeight: "100vh", padding: "40px 20px" }}>
+    <div
+      style={{
+        background: "linear-gradient(to bottom, #ffffff, #fde0e0)",
+        minHeight: "100vh",
+        padding: "40px 20px",
+      }}
+    >
       {/* Top Team Image + Text side by side */}
       <div
         style={{
