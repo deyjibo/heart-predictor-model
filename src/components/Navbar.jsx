@@ -1,43 +1,93 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "./image/logo.PNG";   // <-- Import image
+import logo from "./image/logo.PNG"; // <-- Import image
+import HeartFormModal from "./HeartFormModal"; // <-- Make sure path is correct
 
 const Navbar = () => {
-  return (
-    <nav
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "15px 40px",
-        backgroundColor: "#fff",
-        color: "#d32f2f",
-        position: "sticky",
-        top: 0,
-        zIndex: 1000,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      }}
-    >
-      {/* Logo and Name */}
-      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-        <img
-          src={logo}
-          alt="Logo"
-          style={{ width: "55px", height: "55px" }}
-        />
-        <h1 style={{ fontSize: "30px", fontWeight: "600", margin: 0, color: "#d32f2f" }}>
-          MediNauts
-        </h1>
-      </div>
+  const [showPredictModal, setShowPredictModal] = useState(false);
 
-      {/* Links */}
-      <div style={{ display: "flex", gap: "30px", fontSize: "18px", fontWeight: "500" }}>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/collaborators">Collaborators</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
-        <NavLink to="/testing">Check Health</NavLink>
-      </div>
-    </nav>
+  return (
+    <>
+      <nav
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "15px 40px",
+          backgroundColor: "#fff",
+          color: "#d32f2f",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        {/* Logo and Name */}
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+          <img src={logo} alt="Logo" style={{ width: "55px", height: "55px" }} />
+          <h1
+            style={{
+              fontSize: "30px",
+              fontWeight: "600",
+              margin: 0,
+              color: "#d32f2f",
+            }}
+          >
+            MediNauts
+          </h1>
+        </div>
+
+        {/* Links */}
+        <div style={{ display: "flex", gap: "30px", fontSize: "18px", fontWeight: "500" }}>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/collaborators">Collaborators</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
+
+          {/* Predict Link opens modal */}
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowPredictModal(true)}
+          >
+            Predict
+          </span>
+        </div>
+      </nav>
+
+      {/* Predict Modal */}
+      {showPredictModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 2000,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "rgba(255,255,255,0.3)", // semi-transparent overlay
+            backdropFilter: "blur(8px)", // blur background
+          }}
+          onClick={() => setShowPredictModal(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "30px",
+              borderRadius: "16px",
+              maxWidth: "900px",
+              width: "90%",
+              maxHeight: "90%",
+              overflowY: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()} // prevent closing modal when clicking inside
+          >
+            <HeartFormModal close={() => setShowPredictModal(false)} />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
