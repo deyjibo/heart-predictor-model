@@ -27,7 +27,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/collaborators" element={<Collaborators />} />
             <Route path="/contact" element={<Contact />} />
-
+            
             {/* NEW RESULT ROUTE */}
             <Route path="/heart-result" element={<HeartResult />} />
 

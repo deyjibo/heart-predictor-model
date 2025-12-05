@@ -103,14 +103,7 @@ const Field = ({ label, name, type, placeholder, value, onChange, options, hint 
 );
 
 /* ---------------- STYLES ---------------- */
-const overlayStyle = {
-  position: "fixed",
-  top: 0, left: 0, width: "100vw", height: "100vh",
-  background: "rgba(0,0,0,0.45)",
-  backdropFilter: "blur(6px)",
-  display: "flex", justifyContent: "center", alignItems: "center",
-  zIndex: 9999
-};
+const overlayStyle = { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999 };
 const modalStyle = { width: "85%", background: "#fff", borderRadius: 30, padding: "25px 30px", boxShadow: "0 10px 30px rgba(0,0,0,0.25)", maxHeight: "85vh", overflowY: "auto", position: "relative" };
 const closeBtn = { fontSize: 28, border: "none", background: "none", cursor: "pointer", position: "absolute", top: 12, right: 15 };
 const sectionTitle = { marginTop: 22, marginBottom: 8, fontSize: 16, color: "#444", fontWeight: 600, borderBottom: "2px solid #e0e0e0", paddingBottom: 4 };
