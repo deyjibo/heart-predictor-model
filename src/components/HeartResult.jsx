@@ -1,90 +1,184 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// HeartFormModal.jsx (modified)
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function calculateRisk(data) {
-  if (!data) return 0; // prevent undefined error
-  let score = 0;
-  if (data.age > 50) score += 15;
-  if (data.chol > 200) score += 15;
-  if (data.trestbps > 130) score += 10;
-  if (data.exang === "1") score += 20;
-  if (data.cp === "2" || data.cp === "3") score += 15;
-  if (data.thalach < 120) score += 10;
-  if (data.oldpeak > 2.0) score += 15;
-  return Math.min(score, 95);
-}
+const API_BASE = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
 
-const HeartResultModal = ({ close }) => {
-  const location = useLocation();
+const HeartFormModal = ({ close }) => {
   const navigate = useNavigate();
-  const state = location.state; // get the data from navigation
-  const riskScore = calculateRisk(state);
 
-  if (!state) return <p>No data provided</p>;
+  const [form, setForm] = useState({
+    age: "",
+    sex: "",
+    cp: "",
+    trestbps: "",
+    chol: "",
+    fbs: "",
+    restecg: "",
+    thalach: "",
+    exang: "",
+    oldpeak: "",
+    slope: "",
+    ca: "",
+    thal: ""
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Convert string form values to numbers where necessary
+  const normalizeForm = (f) => ({
+    age: Number(f.age),
+    sex: Number(f.sex),
+    cp: Number(f.cp),
+    trestbps: Number(f.trestbps),
+    chol: Number(f.chol),
+    fbs: Number(f.fbs),
+    restecg: Number(f.restecg),
+    thalach: Number(f.thalach),
+    exang: Number(f.exang),
+    oldpeak: Number(f.oldpeak),
+    slope: Number(f.slope),
+    ca: Number(f.ca),
+    thal: Number(f.thal),
+  });
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const payload = normalizeForm(form);
+
+    try {
+      // POST to FastAPI predict endpoint
+      const res = await fetch(`${API_BASE}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Server ${res.status}: ${txt}`);
+      }
+
+      const prediction = await res.json();
+
+      // close modal then navigate to result page with both form & prediction
+      if (close) close();
+      navigate("/heart-result", { state: { form: payload, prediction } });
+
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Prediction failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div style={overlay}>
-      <div style={card}>
-        <button style={closeBtn} onClick={() => navigate(-1)}>×</button>
-        <h1 style={mainTitle}>Heart Disease Prediction Result</h1>
-        <p style={subTitle}>Based on your submitted clinical parameters</p>
+    <div style={overlayStyle}>
+      <div style={modalStyle}>
+        <button onClick={close} style={closeBtn}>×</button>
 
-        <div style={resultBox}>
-          <h2 style={riskTitle}>{riskScore >= 50 ? "⚠️ High Risk Detected" : "✅ Low Risk Detected"}</h2>
-          <p style={riskPercentage}>Estimated Risk Score: <b>{riskScore}%</b></p>
+        <div style={{ textAlign: "center", marginBottom: 10 }}>
+          <h1 style={{ margin: 0, fontSize: 18, color: "red" }}>Medical Analysis</h1>
+          <h2 style={{ margin: "3px 0", fontSize: 22, fontWeight: 700, color: "#222" }}>
+            Enter Clinical Parameters
+          </h2>
+          <p style={{ fontSize: 13, color: "#777", marginTop: 6 }}>
+            Fill in the details below to generate a real-time risk assessment.
+          </p>
         </div>
 
-        <h3 style={sectionTitle}>Your Entered Parameters</h3>
-        <div style={grid}>
-          {Object.entries(state).map(([key, value]) => (
-            <div key={key} style={infoItem}>
-              <span style={infoLabel}>{key.toUpperCase()} : </span>
-              <span style={infoValue}>{value}</span>
-            </div>
-          ))}
-        </div>
+        <form onSubmit={submitForm}>
+          <h3 style={sectionTitle}>🫀 Patient Details</h3>
+          <div style={row}>
+            <Field label="AGE" name="age" type="number" placeholder="Years" value={form.age} onChange={handleChange} />
+            <Field label="SEX" name="sex" type="select" options={[0,1]} value={form.sex} onChange={handleChange} hint={["0: Female","1: Male"]} />
+            <Field label="CHEST PAIN TYPE" name="cp" type="select" options={[0,1,2,3]} value={form.cp} onChange={handleChange} hint={["0: Typical","1: Atypical","2: Non-Anginal","3: None"]} />
+          </div>
 
-        <div style={btnRow}>
-          <button
-            style={newBtn}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundPosition = "left center"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundPosition = "right center"}
-            onClick={() => navigate(-1)}
-          >
-            Analyze New Patient
-          </button>
-        </div>
+          <h3 style={sectionTitle}>🩺 Clinical Vitals</h3>
+          <div style={row}>
+            <Field label="RESTING BP" name="trestbps" type="number" placeholder="mm Hg" value={form.trestbps} onChange={handleChange} />
+            <Field label="CHOLESTEROL" name="chol" type="number" placeholder="mg/dL" value={form.chol} onChange={handleChange} />
+            <Field label="BLOOD SUGAR" name="fbs" type="select" options={[0,1]} value={form.fbs} onChange={handleChange} hint={["0: ≤ 120","1: > 120"]} />
+          </div>
+
+          <div style={row}>
+            <Field label="RESTING ECG" name="restecg" type="select" options={[0,1,2]} value={form.restecg} onChange={handleChange} hint={["0: Normal","1: ST-T Abn","2: LV Hypertrophy"]} />
+            <Field label="MAX HEART RATE" name="thalach" type="number" placeholder="BPM" value={form.thalach} onChange={handleChange} />
+            <Field label="EXERCISE ANGINA" name="exang" type="select" options={[0,1]} value={form.exang} onChange={handleChange} hint={["0: No","1: Yes"]} />
+          </div>
+
+          <h3 style={sectionTitle}>🧪 Test Results</h3>
+          <div style={row}>
+            <Field label="ST DEPRESSION" name="oldpeak" type="text" placeholder="e.g. 1.5" value={form.oldpeak} onChange={handleChange} />
+            <Field label="ST SLOPE" name="slope" type="select" options={[0,1,2]} value={form.slope} onChange={handleChange} hint={["0: Up","1: Flat","2: Down"]} />
+            <Field label="MAJOR VESSELS" name="ca" type="select" options={[0,1,2,3]} value={form.ca} onChange={handleChange} hint={["0-3 colored vessels"]} />
+          </div>
+          <div style={row}>
+            <Field label="THALLIUM" name="thal" type="select" options={[1,2,3]} value={form.thal} onChange={handleChange} hint={["1: Normal","2: Fixed","3: Reversible"]} />
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            <button
+              type="submit"
+              style={processBtn}
+              disabled={loading}
+              onMouseEnter={(e)=>e.currentTarget.style.backgroundPosition="left center"}
+              onMouseLeave={(e)=>e.currentTarget.style.backgroundPosition="right center"}
+            >
+              {loading ? "Processing…" : "Process Data ❤️"}
+            </button>
+          </div>
+
+          {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
+        </form>
       </div>
     </div>
   );
 };
 
-/* ---------------- STYLES ---------------- */
-const overlay = { position:"fixed", top:0, left:0, width:"100vw", height:"100vh", background:"rgba(0,0,0,0.5)", backdropFilter:"blur(8px)", display:"flex", justifyContent:"center", alignItems:"center", zIndex:1000, padding:"20px" };
-const card = { width:"90%", maxWidth:"1000px", background:"#fff", borderRadius:"20px", padding:"30px 40px", boxShadow:"0 8px 25px rgba(0,0,0,0.25)", position:"relative", maxHeight:"90vh", overflowY:"auto" };
-const closeBtn = { position:"absolute", top:"18px", right:"20px", fontSize:"32px", border:"none", background:"none", cursor:"pointer", color:"#222" };
-const mainTitle = { fontSize:"28px", fontWeight:"700", textAlign:"center", color:"red", marginBottom:"5px" };
-const subTitle = { textAlign:"center", fontSize:"14px", color:"#666", marginBottom:"20px" };
-const resultBox = { background:"#f6f6f6", padding:"25px", borderRadius:"20px", textAlign:"center", marginBottom:"25px" };
-const riskTitle = { fontSize:"22px", fontWeight:"700", marginBottom:"8px" };
-const riskPercentage = { fontSize:"16px", color:"#444" };
-const sectionTitle = { fontSize:"18px", marginBottom:"10px", fontWeight:"600", borderBottom:"2px solid #ddd", paddingBottom:"5px", color:"#333" };
-const grid = { display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"12px", marginBottom:"25px" };
-const infoItem = { background:"#fafafa", padding:"12px", borderRadius:"12px", boxShadow:"0 2px 6px rgba(0,0,0,0.1)" };
-const infoLabel = { fontSize:"12px", fontWeight:"600", color:"#777" };
-const infoValue = { fontSize:"14px", fontWeight:"700", color:"#222" };
-const btnRow = { display:"flex", justifyContent:"center", marginTop:"10px" };
-const newBtn = {
-  backgroundSize:"200% auto",
-  backgroundImage:"linear-gradient(to right,#00008b 0%,#00008b 50%,#ff0000 50%,#ff0000 100%)",
-  color:"#fff",
-  padding:"12px 20px",
-  borderRadius:"15px",
-  border:"none",
-  fontSize:"14px",
-  cursor:"pointer",
-  transition:"0.4s ease",
-  backgroundPosition:"right center"
-};
+/* Field component and styles unchanged from your file */
+const Field = ({ label, name, type, placeholder, value, onChange, options, hint }) => (
+  <div style={fieldBox}>
+    <label style={labelStyle}>{label}</label>
+    {type === "select" ? (
+      <select name={name} value={value} onChange={onChange} required style={inputStyle}>
+        <option value="">Select</option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    ) : (
+      <input name={name} value={value} onChange={onChange} type={type} placeholder={placeholder} required style={inputStyle} />
+    )}
+    {hint && <div style={hintStyle}>{hint.map((h,i)=> <div key={i}>{h}</div>)}</div>}
+  </div>
+);
 
-export default HeartResultModal;
+/* styles (same as yours) */
+const overlayStyle = {
+  position: "fixed",
+  top: 0, left: 0, width: "100vw", height: "100vh",
+  background: "rgba(0,0,0,0.45)",
+  backdropFilter: "blur(6px)",
+  display: "flex", justifyContent: "center", alignItems: "center",
+  zIndex: 9999
+};
+const modalStyle = { width: "85%", background: "#fff", borderRadius: 30, padding: "25px 30px", boxShadow: "0 10px 30px rgba(0,0,0,0.25)", maxHeight: "85vh", overflowY: "auto", position: "relative" };
+const closeBtn = { fontSize: 28, border: "none", background: "none", cursor: "pointer", position: "absolute", top: 12, right: 15 };
+const sectionTitle = { marginTop: 22, marginBottom: 8, fontSize: 16, color: "#444", fontWeight: 600, borderBottom: "2px solid #e0e0e0", paddingBottom: 4 };
+const row = { display: "flex", gap: 18, marginBottom: 12, flexWrap: "wrap" };
+const fieldBox = { flex: "1 1 250px", display: "flex", alignItems: "center", gap: 10 };
+const labelStyle = { width: 140, fontSize: 12, fontWeight: 600, color: "#333" };
+const inputStyle = { flex: 1, padding: 8, border: "1px solid #ccc", borderRadius: 10, fontSize: 13 };
+const hintStyle = { fontSize: 11, color: "#777", width: 100, lineHeight: 1.3 };
+const processBtn = { backgroundSize: "200% auto", backgroundImage: "linear-gradient(to right, #00008b 0%, #00008b 50%, #ff0000 50%, #ff0000 100%)", color: "#fff", padding: "10px 22px", fontSize: 14, borderRadius: 16, cursor: "pointer", border: "none", transition: "0.4s ease", backgroundPosition: "right center" };
+
+export default HeartFormModal;
