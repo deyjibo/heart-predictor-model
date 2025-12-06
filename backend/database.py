@@ -1,10 +1,16 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
+import os
 
-load_dotenv()  # load .env file
+load_dotenv()  # load variables from .env
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+username = quote_plus(os.getenv("MONGO_USER"))
+password = quote_plus(os.getenv("MONGO_PASS"))
+cluster = os.getenv("MONGO_CLUSTER")
+
+MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster}/?retryWrites=true&w=majority"
+
 client = AsyncIOMotorClient(MONGO_URI)
-db = client.heart_db
-collection = db.predictions
+db = client["heartDB"]
+collection = db["patient_data"]

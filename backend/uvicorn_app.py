@@ -12,16 +12,15 @@ app = FastAPI(
     description="Predict heart disease using FastAPI"
 )
 
-# CORS for React frontend
+# CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # dev only
+    allow_origins=["http://localhost:3000"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ---------- Pydantic Model ----------
+# Request Model
 class HeartDiseaseRequest(BaseModel):
     age: int
     sex: int
@@ -37,11 +36,10 @@ class HeartDiseaseRequest(BaseModel):
     ca: int
     thal: int
 
-# ---------- Load ML Model ----------
+# Load ML Model
 model_path = Path(__file__).parent / "models/heart_model.joblib"
 model = load(model_path)
 
-# ---------- Routes ----------
 @app.get("/")
 def home():
     return {"message": "Welcome to Heart Disease Prediction API!"}
@@ -54,16 +52,18 @@ async def predict(input_data: HeartDiseaseRequest):
         input_data.exang, input_data.oldpeak, input_data.slope, input_data.ca,
         input_data.thal
     ]
+
     prediction = model.predict([features])[0].item()
     probability = model.predict_proba([features])[0][1].item()
 
-    # Save to MongoDB
+    # Save real-time data to MongoDB
     doc = {
         "inputData": input_data.dict(),
         "prediction": prediction,
         "probability": probability,
         "createdAt": datetime.utcnow()
     }
+
     await collection.insert_one(doc)
 
     return {"prediction": prediction, "probability": probability}
@@ -76,7 +76,6 @@ async def export_csv():
     if not docs:
         return {"message": "No prediction data found"}
 
-    # Flatten documents
     rows = []
     for item in docs:
         row = {**item["inputData"]}
@@ -91,7 +90,6 @@ async def export_csv():
     headers = {"Content-Disposition": "attachment; filename=predictions.csv"}
     return Response(content=csv_data, media_type="text/csv", headers=headers)
 
-# ---------- Run server ----------
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
