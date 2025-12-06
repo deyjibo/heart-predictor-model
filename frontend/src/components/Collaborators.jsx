@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import m1 from "./image/anish.jpeg";
 import m2 from "./image/sohan.jpeg";
 import m3 from "./image/chayan.jpeg";
-import m4 from "./image/jibo.png";
-import m5 from "./image/animesh.png";
+import m4 from "./image/jibo.jpeg";
+import m5 from "./image/animesh.jpeg";
 import team from "./image/team.jpg";
 
 const Collaborators = () => {
