@@ -28,11 +28,13 @@ const HeartResult = () => {
     const fetchPrediction = async () => {
       try {
         // 🔹 Replace the URL with your actual API endpoint
-        const response = await fetch("http://localhost:8000/predict", {
+        fetch(`${process.env.REACT_APP_API_URL}/predict`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
+
+
 
         const data = await response.json();
         setPrediction(data); // data: { prediction: 0/1, probability: 0.0-1.0 }

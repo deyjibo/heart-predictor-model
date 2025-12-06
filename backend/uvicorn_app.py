@@ -1,3 +1,10 @@
+# uvicorn_app.py
+"""
+Heart Disease Prediction API with MongoDB storage
+Author: Your Name
+License: Apache 2.0
+"""
+
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from joblib import load
@@ -6,31 +13,42 @@ from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
-# ✅ Mongo
+# MongoDB async client
 from motor.motor_asyncio import AsyncIOMotorClient
 
+# -------------------- Load Environment --------------------
+load_dotenv()  # loads .env file
+
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("MONGO_DB", "heart_disease")
+COLLECTION_NAME = os.getenv("MONGO_COLLECTION", "predictions")
+
+EXPORT_DIR = Path(__file__).parent / "exports"
+EXPORT_DIR.mkdir(exist_ok=True)
+
+# -------------------- MongoDB Setup --------------------
+client = AsyncIOMotorClient(MONGO_URI)
+db = client[DB_NAME]
+collection = db[COLLECTION_NAME]
+
+# -------------------- FastAPI Setup --------------------
 app = FastAPI(
     title="Heart Disease Prediction API",
-    description="Predict heart disease using FastAPI"
+    description="Predict heart disease and store real-time data in MongoDB"
 )
 
-# ✅ CORS (ALLOW FRONTEND HOST)
+# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ✅ REQUIRED FOR DEPLOYMENT
+    allow_origins=["*"],  # for dev; restrict in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ MongoDB connection using ENV
-MONGO_URI = os.getenv("MONGO_URI")
-client = AsyncIOMotorClient(MONGO_URI)
-db = client["heart_disease"]
-collection = db["predictions"]
-
-# ✅ Request Model
+# -------------------- Pydantic Request Model --------------------
 class HeartDiseaseRequest(BaseModel):
     age: int
     sex: int
@@ -46,11 +64,11 @@ class HeartDiseaseRequest(BaseModel):
     ca: int
     thal: int
 
-# ✅ Load ML Model safely
+# -------------------- Load ML Model --------------------
 MODEL_PATH = Path(__file__).parent / "models" / "heart_model.joblib"
 model = load(MODEL_PATH)
 
-# ✅ Routes
+# -------------------- Routes --------------------
 @app.get("/")
 def home():
     return {"message": "Heart Disease Prediction API is running ✅"}
@@ -83,7 +101,10 @@ async def predict(input_data: HeartDiseaseRequest):
         "createdAt": datetime.utcnow()
     }
 
-    await collection.insert_one(document)
+    # ✅ Prevent duplicates (optional)
+    exists = await collection.find_one({"inputData": input_data.dict()})
+    if not exists:
+        await collection.insert_one(document)
 
     return {
         "prediction": prediction,
@@ -92,6 +113,7 @@ async def predict(input_data: HeartDiseaseRequest):
 
 @app.get("/export-csv")
 async def export_csv():
+    """Developer-only endpoint to export all stored predictions"""
     cursor = collection.find({})
     docs = await cursor.to_list(length=10000)
 
@@ -107,7 +129,14 @@ async def export_csv():
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    csv_data = df.to_csv(index=False)
+    export_path = EXPORT_DIR / "predictions.csv"
+    df.to_csv(export_path, index=False)
 
-    headers = {"Content-Disposition": "attachment; filename=predictions.csv"}
+    csv_data = df.to_csv(index=False)
+    headers = {"Content-Disposition": f"attachment; filename=predictions.csv"}
     return Response(content=csv_data, media_type="text/csv", headers=headers)
+
+# -------------------- Run Server --------------------
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
