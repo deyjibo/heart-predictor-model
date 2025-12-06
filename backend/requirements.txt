@@ -1,8 +1,8 @@
 fastapi
-pydantic
 uvicorn
-pandas
 numpy
+pandas
 scikit-learn
 joblib
-python-multipart
+motor
+pymongo
