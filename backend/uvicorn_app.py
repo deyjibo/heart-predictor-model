@@ -1,10 +1,3 @@
-# uvicorn_app.py
-"""
-Heart Disease Prediction API with MongoDB storage
-Author: Your Name
-License: Apache 2.0
-"""
-
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from joblib import load
@@ -13,25 +6,9 @@ from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import os
-from dotenv import load_dotenv
 
-# MongoDB async client
-from motor.motor_asyncio import AsyncIOMotorClient
-
-# -------------------- Load Environment --------------------
-load_dotenv()  # loads .env file
-
-MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("MONGO_DB", "heart_disease")
-COLLECTION_NAME = os.getenv("MONGO_COLLECTION", "predictions")
-
-EXPORT_DIR = Path(__file__).parent / "exports"
-EXPORT_DIR.mkdir(exist_ok=True)
-
-# -------------------- MongoDB Setup --------------------
-client = AsyncIOMotorClient(MONGO_URI)
-db = client[DB_NAME]
-collection = db[COLLECTION_NAME]
+# MongoDB connection
+from database import collection  # import collection from database.py
 
 # -------------------- FastAPI Setup --------------------
 app = FastAPI(
@@ -42,7 +19,7 @@ app = FastAPI(
 # Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for dev; restrict in production
+    allow_origins=["*"],  # replace "*" with your Netlify/React URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,7 +78,7 @@ async def predict(input_data: HeartDiseaseRequest):
         "createdAt": datetime.utcnow()
     }
 
-    # ✅ Prevent duplicates (optional)
+    # ✅ Safe insert: prevent duplicates
     exists = await collection.find_one({"inputData": input_data.dict()})
     if not exists:
         await collection.insert_one(document)
@@ -113,7 +90,7 @@ async def predict(input_data: HeartDiseaseRequest):
 
 @app.get("/export-csv")
 async def export_csv():
-    """Developer-only endpoint to export all stored predictions"""
+    """Export all stored predictions"""
     cursor = collection.find({})
     docs = await cursor.to_list(length=10000)
 
@@ -129,9 +106,6 @@ async def export_csv():
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    export_path = EXPORT_DIR / "predictions.csv"
-    df.to_csv(export_path, index=False)
-
     csv_data = df.to_csv(index=False)
     headers = {"Content-Disposition": f"attachment; filename=predictions.csv"}
     return Response(content=csv_data, media_type="text/csv", headers=headers)
