@@ -46,3 +46,4 @@ frontend/.env
 Thumbs.db
 *.swp
 *.swo
+export/
