@@ -7,8 +7,8 @@ import pandas as pd
 from pathlib import Path
 import os
 
-# MongoDB connection
-from database import collection  # import collection from database.py
+# ✅ MongoDB connection
+from database import collection  # your database.py must have `collection = db["patients"]`
 
 # -------------------- FastAPI Setup --------------------
 app = FastAPI(
@@ -16,10 +16,9 @@ app = FastAPI(
     description="Predict heart disease and store real-time data in MongoDB"
 )
 
-# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # replace "*" with your Netlify/React URL in production
+    allow_origins=["*"],  # change to your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,6 +49,15 @@ model = load(MODEL_PATH)
 def home():
     return {"message": "Heart Disease Prediction API is running ✅"}
 
+@app.get("/mongo-status")
+async def mongo_status():
+    """Check MongoDB connection"""
+    try:
+        await collection.database.client.admin.command("ping")
+        return {"mongo": "connected ✅"}
+    except Exception as e:
+        return {"mongo": f"not connected ❌: {e}"}
+
 @app.post("/predict")
 async def predict(input_data: HeartDiseaseRequest):
     features = [[
@@ -78,7 +86,7 @@ async def predict(input_data: HeartDiseaseRequest):
         "createdAt": datetime.utcnow()
     }
 
-    # ✅ Safe insert: prevent duplicates
+    # ✅ Prevent duplicate entries
     exists = await collection.find_one({"inputData": input_data.dict()})
     if not exists:
         await collection.insert_one(document)
@@ -90,9 +98,8 @@ async def predict(input_data: HeartDiseaseRequest):
 
 @app.get("/export-csv")
 async def export_csv():
-    """Export all stored predictions"""
-    cursor = collection.find({})
-    docs = await cursor.to_list(length=10000)
+    """Export all stored predictions as CSV"""
+    docs = await collection.find({}).to_list(length=10000)
 
     if not docs:
         return {"message": "No prediction data found"}
@@ -107,8 +114,18 @@ async def export_csv():
 
     df = pd.DataFrame(rows)
     csv_data = df.to_csv(index=False)
-    headers = {"Content-Disposition": f"attachment; filename=predictions.csv"}
+    headers = {"Content-Disposition": "attachment; filename=predictions.csv"}
+
     return Response(content=csv_data, media_type="text/csv", headers=headers)
+
+# -------------------- Startup Event --------------------
+@app.on_event("startup")
+async def startup_event():
+    try:
+        await collection.database.client.admin.command("ping")
+        print("MongoDB connected successfully ✅")
+    except Exception as e:
+        print(f"MongoDB connection failed ❌: {e}")
 
 # -------------------- Run Server --------------------
 if __name__ == "__main__":
