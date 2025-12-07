@@ -3,10 +3,10 @@
 A simple and intelligent **Heart Disease Prediction application** built with **React**, **FastAPI**, and **MongoDB** to analyze clinical parameters and predict heart disease risk. The application supports real-time predictions and persistent data storage using MongoDB.
 
 <p align="center">
-  <a href="https://your-frontend-link.netlify.app" target="_blank">
+  <a href="https://care4heart.netlify.app/" target="_blank">
     <img src="https://img.shields.io/badge/Live-Demo-green?style=for-the-badge&logo=netlify" alt="Live Demo" />
   </a>
-  <a href="https://github.com/your-username/heart-predictor-model-ui">
+  <a href="https://github.com/deyjibo/heart-predictor-model">
     <img src="https://img.shields.io/badge/GitHub-Repo-black?style=for-the-badge&logo=github" alt="GitHub Repo" />
   </a>
 </p>
@@ -14,7 +14,7 @@ A simple and intelligent **Heart Disease Prediction application** built with **R
 ## Live Demo
 
 👉 Check out the live app:  
-[Heart Disease Prediction App](https://your-frontend-link.netlify.app)
+[Heart Disease Prediction App](https://care4heart.netlify.app/)
 
 ---
 
