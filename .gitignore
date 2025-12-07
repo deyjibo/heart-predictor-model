@@ -1,39 +1,19 @@
 # ======================
-# Dependencies
+# Node / Frontend
 # ======================
-/node_modules
-/.pnp
-.pnp.js
-
-# Python caches
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Testing
-/coverage
-
-# Production build
-/build
-
-# Misc
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-
-# ======================
-# Logs
-# ======================
+node_modules/
+frontend/build/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.log
 
 # ======================
 # Python / Backend
 # ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 
 # Virtual environments
 .venv/
@@ -44,31 +24,20 @@ env/
 Pipfile.lock
 poetry.lock
 
-# VSCode settings
-.vscode/
+# Backend exports (do not push CSVs)
+backend/exports/
 
 # Environment variables
 backend/.env
 frontend/.env
 
-# Developer-only exports
-backend/exports/
-backend/export_mongo_csv.py
+# VSCode settings
+.vscode/
 
 # ======================
-# Node / Frontend
+# Logs
 # ======================
-
-# Node modules
-frontend/node_modules/
-
-# Frontend build
-frontend/build/
-
-# npm logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+*.log
 
 # ======================
 # OS / Editor files
