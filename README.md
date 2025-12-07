@@ -1,50 +1,67 @@
 # ❤️ Heart Disease Prediction App
 
-A full-stack application to predict heart disease risk using clinical parameters.  
-Built with **React** for frontend and **FastAPI** for backend, with data stored in **MongoDB**.
+A simple and intelligent **Heart Disease Prediction application** built with **React**, **FastAPI**, and **MongoDB** to analyze clinical parameters and predict heart disease risk. The application supports real-time predictions and persistent data storage using MongoDB.
+
+<p align="center">
+  <a href="https://your-frontend-link.netlify.app" target="_blank">
+    <img src="https://img.shields.io/badge/Live-Demo-green?style=for-the-badge&logo=netlify" alt="Live Demo" />
+  </a>
+  <a href="https://github.com/your-username/heart-predictor-model-ui">
+    <img src="https://img.shields.io/badge/GitHub-Repo-black?style=for-the-badge&logo=github" alt="GitHub Repo" />
+  </a>
+</p>
+
+## Live Demo
+
+👉 Check out the live app:  
+[Heart Disease Prediction App](https://your-frontend-link.netlify.app)
 
 ---
 
-## 🌐 Live Demo
-Check out the live frontend (after deployment on Render/Netlify):
+## Features
 
-[https://care4heart.netlify.app/](#)  <!-- replace with actual URL -->
-
----
-
-## ⚡ Features
-
-- Predict heart disease risk with a machine learning model  
-- User-friendly React interface for data input  
-- Real-time predictions from FastAPI backend  
-- Heuristic fallback if model prediction fails  
-- Export MongoDB data to CSV for developers  
-- Fully deployable on Render  
+- Predict heart disease risk using a machine learning model  
+- User-friendly form to enter clinical parameters  
+- Real-time predictions via FastAPI backend  
+- Fallback heuristic scoring if model prediction fails  
+- Persistent storage using **MongoDB**  
+- Export MongoDB data to CSV for developer analysis  
 
 ---
 
-## 🏆 Achievements
+## Achievements
 
-- Successfully implemented ML-based prediction model  
-- Integrated React frontend with FastAPI backend  
-- Connected with MongoDB Atlas for persistent storage  
-- Export feature allows easy data sharing for analysis  
+- Successfully integrated ML model with FastAPI  
+- Connected React frontend with backend API  
+- Implemented MongoDB for data persistence  
+- Enabled CSV export for stored prediction data  
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-**Frontend:** React, HTML, CSS, JavaScript  
-**Backend:** Python, FastAPI, Uvicorn  
-**Database:** MongoDB (NoSQL)  
-**Deployment:** Render / Netlify  
+- **Frontend:** HTML, CSS, JavaScript, React  
+- **Backend:** Python, FastAPI, Uvicorn  
+- **Database:** MongoDB (NoSQL)  
 
 ---
 
 ## 🚀 Getting Started
 
-### 1️⃣ Clone the repository
+Run it locally
 
 ```bash
-git clone https://github.com/your-username/heart-predictor-model-ui.git
-cd heart-predictor-model-ui
+### Run the Backend First
+cd backend
+python -m venv .venv
+# Windows
+.\.venv\Scripts\Activate.ps1
+# Linux / macOS
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn uvicorn_app:app --reload
+
+### Run the Frontend Next
+cd frontend
+npm install
+npm start
