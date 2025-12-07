@@ -8,7 +8,7 @@ Built with **React** for frontend and **FastAPI** for backend, with data stored 
 ## 🌐 Live Demo
 Check out the live frontend (after deployment on Render/Netlify):
 
-[Heart Disease Prediction Live](#)  <!-- replace with actual URL -->
+[https://care4heart.netlify.app/](#)  <!-- replace with actual URL -->
 
 ---
 
