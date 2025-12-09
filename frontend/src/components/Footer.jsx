@@ -56,7 +56,7 @@ const Footer = () => {
           </div>
 
           <p style={{ fontSize: "18px", color: "#fff", maxWidth: "600px" }}>
-            Our Mission is Deliver innovative health solutions and AI-powered
+            Our Mission is to Deliver innovative health solutions and AI-powered
             prediction tools to improve healthcare outcomes.
           </p>
         </div>
